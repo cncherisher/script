@@ -27,6 +27,11 @@ sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master
 ```
 一键命令安装 fail2ban
 
-```shell
+``` shell
 wget https://raw.githubusercontent.com/cncherisher/script/master/fail2ban.sh && bash fail2ban.sh 2>&1 | tee fail2ban.log
+```
+一键命令安装oh-my-zsh
+
+``` shell
+sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master/oh-my-zsh.sh)"
 ```
