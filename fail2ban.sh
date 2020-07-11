@@ -54,7 +54,7 @@ echo ""
 
 while :; do echo
   read -p "是否需要修改ssh端口? [y/n]: " IfChangeSSHPort
-  if [ ${IfChangeSSHPort} == 'y' ]; then
+  if [ ${IfChangeSSHPort} == 'y'];then
     if [ -e "/etc/ssh/sshd_config" ];then
     [ -z "`grep ^Port /etc/ssh/sshd_config`" ] && ssh_port=22 || ssh_port=`grep ^Port /etc/ssh/sshd_config | awk '{print $2}'`
     while :; do echo
@@ -86,14 +86,14 @@ echo ""
 echo ""
 	read -p "#输入最大尝试次数 [默认值为3]:  " maxretry
 echo ""
-read -p "#输入屏蔽时间，-1是永久屏蔽 [小时][默认值为3]:  " bantime
-if [ ${findtime} == '' ];then
+	read -p "#输入屏蔽时间，-1是永久屏蔽 [小时][默认值为24]:  " bantime
+if ["${findtime}" = ""];then
 	findtime=1
 fi
-if [ ${maxretry} == '' ]; then
+if ["${maxretry}" = ""];then
 	maxretry=3
 fi
-if [ ${bantime} == '' ];then
+if ["${bantime}" = ""];then
 	bantime=24
 fi
 ((findtime=$findtime*60*60))
