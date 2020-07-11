@@ -81,9 +81,9 @@ while :; do echo
 done
 ssh_port=$SSH_PORT
 echo ""
-	read -p "Input the maximun times for trying [2-10]:  " maxretry
+	read -p "请输入可尝试登录的最大次数 [默认值为3]:  " maxretry
 echo ""
-read -p "Input the lasting time for blocking a IP [hours]:  " bantime
+read -p "请输入封禁时间 [默认值为24小时]:  " bantime
 if [ ${maxretry} == '' ]; then
 	maxretry=3
 fi
@@ -172,9 +172,4 @@ if [[ ${OS} =~ ^Ubuntu$|^Debian$ ]]; then
   service ssh restart
 fi
 echo ""
-echo 'Telegram Group: https://t.me/functionclub'
-echo 'Google Puls: https://plus.google.com/communities/113154644036958487268'
-echo 'Github: https://github.com/FunctionClub'
-echo 'QQ Group:277717865'
-
 echo "Fail2ban is now runing on this server now!"

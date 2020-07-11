@@ -13,5 +13,5 @@ sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master
 一键命令安装 fail2ban
 
 ```shell
-sh -c "$(wget https://raw.githubusercontent.com/cncherisher/script/master/fail2ban.sh && bash fail2ban.sh 2>&1 | tee fail2ban.log)"
+wget https://raw.githubusercontent.com/cncherisher/script/master/fail2ban.sh && bash fail2ban.sh 2>&1 | tee fail2ban.log
 ```
