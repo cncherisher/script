@@ -53,17 +53,17 @@ echo "This Shell Script can protect your server from SSH attacks with the help o
 echo ""
 
 while :; do echo
-  read -p "Do you want to change your SSH Port? [y/n]: " IfChangeSSHPort
+  read -p "是否需要修改ssh端口? [y/n]: " IfChangeSSHPort
   if [ ${IfChangeSSHPort} == 'y' ]; then
     if [ -e "/etc/ssh/sshd_config" ];then
     [ -z "`grep ^Port /etc/ssh/sshd_config`" ] && ssh_port=22 || ssh_port=`grep ^Port /etc/ssh/sshd_config | awk '{print $2}'`
     while :; do echo
-        read -p "Please input SSH port(Default: $ssh_port): " SSH_PORT
+        read -p "请输入新的ssh端口(默认: $ssh_port): " SSH_PORT
         [ -z "$SSH_PORT" ] && SSH_PORT=$ssh_port
         if [ $SSH_PORT -eq 22 >/dev/null 2>&1 -o $SSH_PORT -gt 1024 >/dev/null 2>&1 -a $SSH_PORT -lt 65535 >/dev/null 2>&1 ];then
             break
         else
-            echo "${CWARNING}input error! Input range: 22,1025~65534${CEND}"
+            echo "${CWARNING}输入错误! 输入范围: 22,1025~65534${CEND}"
         fi
     done
     if [ -z "`grep ^Port /etc/ssh/sshd_config`" -a "$SSH_PORT" != '22' ];then
@@ -76,21 +76,28 @@ while :; do echo
   elif [ ${IfChangeSSHPort} == 'n' ]; then
     break
   else
-    echo "${CWARNING}Input error! Please only input y or n!${CEND}"
+    echo "${CWARNING}输入错误，请输入 y 或者n !${CEND}"
   fi
 done
 ssh_port=$SSH_PORT
 echo ""
-	read -p "请输入可尝试登录的最大次数 [默认值为3]:  " maxretry
+	read -p "#设置限定时间内超过 最大尝试次数 即被封锁[小时]:  " findtime
 echo ""
-read -p "请输入封禁时间 [默认值为24小时]:  " bantime
+echo ""
+	read -p "#输入最大尝试次数 [默认值为3]:  " maxretry
+echo ""
+read -p "#输入屏蔽时间，-1是永久屏蔽 [小时]:  " bantime
 if [ ${maxretry} == '' ]; then
 	maxretry=3
 fi
 if [ ${bantime} == '' ];then
 	bantime=24
 fi
+if [ ${findtime} == '' ];then
+	bantime=1
+fi
 ((bantime=$bantime*60*60))
+((findtime=$findtime*60*60))
 #Install
 if [ ${OS} == CentOS ]; then
   yum -y install epel-release
@@ -120,7 +127,7 @@ filter = sshd
 action = iptables[name=SSH, port=ssh, protocol=tcp]
 logpath = /var/log/secure
 maxretry = $maxretry
-findtime = 3600
+findtime = $findtime
 bantime = $bantime
 EOF
 else
@@ -137,7 +144,7 @@ filter = sshd
 action = iptables[name=SSH, port=ssh, protocol=tcp]
 logpath = /var/log/auth.log
 maxretry = $maxretry
-findtime = 3600
+findtime = $findtime
 bantime = $bantime
 EOF
 fi
