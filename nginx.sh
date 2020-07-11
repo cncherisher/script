@@ -282,4 +282,5 @@ ln -s /usr/sbin/nginx /usr/bin/nginx
 systemctl unmask nginx.service
 systemctl daemon-reload
 systemctl enable nginx
+systemctl stop nginx
 systemctl start nginx
