@@ -81,23 +81,23 @@ while :; do echo
 done
 ssh_port=$SSH_PORT
 echo ""
-	read -p "#设置限定时间内超过 最大尝试次数 即被封锁[小时]:  " findtime
+	read -p "#设置限定时间内超过 最大尝试次数 即被封锁[小时][默认值为1]:  " findtime
 echo ""
 echo ""
 	read -p "#输入最大尝试次数 [默认值为3]:  " maxretry
 echo ""
-read -p "#输入屏蔽时间，-1是永久屏蔽 [小时]:  " bantime
+read -p "#输入屏蔽时间，-1是永久屏蔽 [小时][默认值为3]:  " bantime
+if [ ${findtime} == '' ];then
+	findtime=1
+fi
 if [ ${maxretry} == '' ]; then
 	maxretry=3
 fi
 if [ ${bantime} == '' ];then
 	bantime=24
 fi
-if [ ${findtime} == '' ];then
-	bantime=1
-fi
-((bantime=$bantime*60*60))
 ((findtime=$findtime*60*60))
+((bantime=$bantime*60*60))
 #Install
 if [ ${OS} == CentOS ]; then
   yum -y install epel-release
@@ -135,7 +135,7 @@ cat <<EOF >> /etc/fail2ban/jail.local
 [DEFAULT]
 ignoreip = 127.0.0.1
 bantime = 86400
-maxretry = $maxretry
+maxretry = 3
 findtime = 1800
 
 [ssh-iptables]
