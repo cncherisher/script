@@ -88,7 +88,7 @@ wget https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1
 tar xjvf jemalloc-5.2.1.tar.bz2
 cd jemalloc-5.2.1
 ./configure
-make && make install
+make -j$(nproc) && make install
 echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
 ldconfig
 
@@ -115,14 +115,14 @@ mv lua-nginx-module-0.10.15 lua-nginx-module
 
 # 编译安装 luajit
 cd luajit
-make -j2 && make install
+make -j$(nproc) && make install
 # echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
 ldconfig
 
 # 编译安装 lua-cjson
 cd /usr/src/lua-cjson
 export LUA_INCLUDE_DIR=/usr/local/include/luajit-2.1 
-make -j2 && make install
+make -j$(nproc) && make install
 
 # 设置 LUAJIT 环境变量
 export LUAJIT_LIB=/usr/local/lib
@@ -137,7 +137,7 @@ sed -i 's@CFLAGS="$CFLAGS -g"@#CFLAGS="$CFLAGS -g"@' /usr/src/nginx/auto/cc/gcc
 cd /usr/src/nginx
 ./configure \
 --user=www-data --group=www-data \
---prefix=/usr/local/nginx \
+--prefix=/etc/nginx \
 --sbin-path=/usr/sbin/nginx \
 --with-compat --with-file-aio --with-threads \
 --with-http_v2_module --with-http_v2_hpack_enc \
@@ -149,27 +149,25 @@ cd /usr/src/nginx
 --add-module=../ngx_brotli \
 --with-stream --with-stream_ssl_module --with-stream_ssl_preread_module \
 --with-ld-opt=-ljemalloc ${waf_mod_1} ${waf_mod_2} 
-# --add-module=../lua-nginx-module \
-# --add-module=../ngx_devel_kit
 
-make -j2 && make install
+make -j$(nproc) && make install
 
 # 下载配置 ngx_lua_waf
-cd /usr/local/nginx/conf/
-rm -rf /usr/local/nginx/conf/waf
+cd /etc/nginx/conf/
+rm -rf /etc/nginx/conf/waf
 git clone https://github.com/xzhih/ngx_lua_waf.git waf 
-mkdir -p /usr/local/nginx/logs/waf 
-chown www-data:www-data /usr/local/nginx/logs/waf 
-cat > /usr/local/nginx/conf/waf.conf << EOF
+mkdir -p /etc/nginx/logs/waf 
+chown www-data:www-data /etc/nginx/logs/waf 
+cat > /etc/nginx/conf/waf.conf << EOF
 lua_load_resty_core off;
 lua_shared_dict limit 20m;
-lua_package_path "/usr/local/nginx/conf/waf/?.lua";
-init_by_lua_file "/usr/local/nginx/conf/waf/init.lua";
-access_by_lua_file "/usr/local/nginx/conf/waf/access.lua";
+lua_package_path "/etc/nginx/conf/waf/?.lua";
+init_by_lua_file "/etc/nginx/conf/waf/init.lua";
+access_by_lua_file "/etc/nginx/conf/waf/access.lua";
 EOF
 
 # 创建 nginx 全局配置
-cat > "/usr/local/nginx/conf/nginx.conf" << OOO
+cat > "/etc/nginx/conf/nginx.conf" << OOO
 user www-data www-data;
 pid /var/run/nginx.pid;
 worker_processes auto;
@@ -231,8 +229,8 @@ After=network.target
 Type=forking
 PIDFile=/var/run/nginx.pid
 ExecStartPost=/bin/sleep 0.1
-ExecStartPre=/usr/sbin/nginx -t -c /usr/local/nginx/conf/nginx.conf
-ExecStart=/usr/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/conf/nginx.conf
+ExecStart=/usr/sbin/nginx -c /etc/nginx/conf/nginx.conf
 ExecReload=/usr/sbin/nginx -s reload
 ExecStop=/usr/sbin/nginx -s stop
 
@@ -261,10 +259,10 @@ ldconfig
 
 # 配置默认站点
 mkdir -p /wwwroot/
-cp -r /usr/local/nginx/html /wwwroot/default
-mkdir -p /usr/local/nginx/conf/vhost/
-mkdir -p /usr/local/nginx/conf/ssl/
-cat > "/usr/local/nginx/conf/vhost/default.conf" << EEE
+cp -r /etc/nginx/html /wwwroot/default
+mkdir -p /etc/nginx/conf/vhost/
+mkdir -p /etc/nginx/conf/ssl/
+cat > "/etc/nginx/conf/vhost/default.conf" << EEE
 server {
   listen 80;
   root /wwwroot/default;
