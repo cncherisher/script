@@ -62,3 +62,8 @@ wget https://raw.githubusercontent.com/cncherisher/script/master/fail2ban.sh && 
 ``` shell
 sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master/oh-my-zsh.sh)"
 ```
+一键命令安装aria2
+
+``` shell
+sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/aria2.sh/master/aria2.sh)"
+```
