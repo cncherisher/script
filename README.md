@@ -65,5 +65,5 @@ sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master
 一键命令安装aria2
 
 ``` shell
-sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/aria2.sh/master/aria2.sh)"
+wget -N https://raw.githubusercontent.com/cncherisher/aria2.sh/master/aria2.sh && chmod +x aria2.sh && ./aria2.sh
 ```
