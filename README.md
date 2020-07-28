@@ -71,8 +71,9 @@ wget -N https://raw.githubusercontent.com/cncherisher/aria2.sh/master/aria2.sh &
 安装aria-mirror-bot
 ``` shell
 git clone -b staging-4.0 --single-branch https://github.com/lzzy12/python-aria-mirror-bot
-cd mirror-bot && cp config_sample.env config.env
+mv python-aria-mirror-bot mirror-bot && cd mirror-bot && cp config_sample.env config.env
 apt install -y python3 python3-pip p7zip-full p7zip-rar curl pv jq ffmpeg gcc git locales python3-lxml
 pip3 install -r requirements.txt
+pip3 install cryptography pycrypto pycryptodome uvloop
 nohup python3 -m bot > /dev/null 2>&1 &
 ```
