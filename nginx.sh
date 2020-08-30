@@ -27,9 +27,9 @@ useradd -s /sbin/nologin -M www-data
 # 下载 openssl
 # 开启 https
 cd /usr/src
-wget https://github.com/openssl/openssl/archive/OpenSSL_1_1_1.tar.gz 
-tar xzvf OpenSSL_1_1_1.tar.gz
-mv openssl-OpenSSL_1_1_1 openssl
+wget https://github.com/openssl/openssl/archive/OpenSSL_1_1_1g.tar.gz 
+tar xzvf OpenSSL_1_1_1g.tar.gz
+mv openssl-OpenSSL_1_1_1g openssl
 
 # 下载 nginx
 cd /usr/src/
@@ -61,7 +61,7 @@ tar zxf ./pcre-8.43.tar.gz
 cd /usr/src/
 git clone https://github.com/hakasenyang/openssl-patch.git
 cd /usr/src/openssl 
-patch -p1 < ../openssl-patch/openssl-equal-1.1.1a_ciphers.patch
+patch -p1 < ../openssl-patch/openssl-equal-1.1.1e-dev_ciphers.patch
 
 cd /usr/src/
 git clone https://github.com/kn007/patch.git nginx-patch
