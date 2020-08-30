@@ -3,23 +3,10 @@
 # 选择安装 WAF
 cat << EOF
 
-ngx_lua_waf is a web application firewall based on lua-nginx-module
+正在安装Nginx
 
 EOF
 
-read -p "install waf ? (Y/n): " input
-case $input in
-  n) 
-waf=0 
-waf_mod_1=''
-waf_mod_2='' 
-;;
-*) 
-waf=1 
-waf_mod_1='--add-module=../lua-nginx-module'
-waf_mod_2='--add-module=../ngx_devel_kit' 
-;;
-esac 
 
 # 安装依赖
 if [ -e "/usr/bin/yum" ]; then
@@ -46,7 +33,7 @@ mv openssl-OpenSSL_1_1_1 openssl
 
 # 下载 nginx
 cd /usr/src/
-nginx_v='1.17.3'
+nginx_v='1.19.2'
 wget https://nginx.org/download/nginx-${nginx_v}.tar.gz
 tar zxvf ./nginx-${nginx_v}.tar.gz 
 mv nginx-${nginx_v} nginx
@@ -92,44 +79,6 @@ make -j$(nproc) && make install
 echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
 ldconfig
 
-if [ $waf -eq 1 ]; then
-
-# 下载 ngx_lua_waf 防火墙的各种依赖及模块
-cd /usr/src/
-luajit_v='2.1-20190626'
-wget https://github.com/openresty/luajit2/archive/v${luajit_v}.tar.gz
-tar xzvf v${luajit_v}.tar.gz
-mv luajit2-${luajit_v} luajit
-
-wget https://github.com/openresty/lua-cjson/archive/2.1.0.7.tar.gz
-tar xzvf 2.1.0.7.tar.gz
-mv lua-cjson-2.1.0.7 lua-cjson
-
-wget https://github.com/simplresty/ngx_devel_kit/archive/v0.3.1rc1.tar.gz
-tar xzvf v0.3.1rc1.tar.gz
-mv ngx_devel_kit-0.3.1rc1 ngx_devel_kit
-
-wget https://github.com/openresty/lua-nginx-module/archive/v0.10.15.tar.gz
-tar xzvf v0.10.15.tar.gz  
-mv lua-nginx-module-0.10.15 lua-nginx-module
-
-# 编译安装 luajit
-cd luajit
-make -j$(nproc) && make install
-# echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
-ldconfig
-
-# 编译安装 lua-cjson
-cd /usr/src/lua-cjson
-export LUA_INCLUDE_DIR=/usr/local/include/luajit-2.1 
-make -j$(nproc) && make install
-
-# 设置 LUAJIT 环境变量
-export LUAJIT_LIB=/usr/local/lib
-export LUAJIT_INC=/usr/local/include/luajit-2.1
-
-fi
-
 # 关闭 nginx 的 debug 模式
 sed -i 's@CFLAGS="$CFLAGS -g"@#CFLAGS="$CFLAGS -g"@' /usr/src/nginx/auto/cc/gcc
 
@@ -148,7 +97,7 @@ cd /usr/src/nginx
 --with-zlib=../zlib --with-http_gzip_static_module \
 --add-module=../ngx_brotli \
 --with-stream --with-stream_ssl_module --with-stream_ssl_preread_module \
---with-ld-opt=-ljemalloc ${waf_mod_1} ${waf_mod_2} 
+--with-ld-opt=-ljemalloc 
 
 make -j$(nproc) && make install
 
