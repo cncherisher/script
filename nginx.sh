@@ -97,23 +97,9 @@ cd /usr/src/nginx
 --with-zlib=../zlib --with-http_gzip_static_module \
 --add-module=../ngx_brotli \
 --with-stream --with-stream_ssl_module --with-stream_ssl_preread_module \
---with-ld-opt=-ljemalloc 
+--with-ld-opt=-ljemalloc --with-ipv6 
 
 make -j$(nproc) && make install
-
-# 下载配置 ngx_lua_waf
-cd /etc/nginx/conf/
-rm -rf /etc/nginx/conf/waf
-git clone https://github.com/xzhih/ngx_lua_waf.git waf 
-mkdir -p /etc/nginx/logs/waf 
-chown www-data:www-data /etc/nginx/logs/waf 
-cat > /etc/nginx/conf/waf.conf << EOF
-lua_load_resty_core off;
-lua_shared_dict limit 20m;
-lua_package_path "/etc/nginx/conf/waf/?.lua";
-init_by_lua_file "/etc/nginx/conf/waf/init.lua";
-access_by_lua_file "/etc/nginx/conf/waf/access.lua";
-EOF
 
 # 创建 nginx 全局配置
 cat > "/etc/nginx/conf/nginx.conf" << OOO
@@ -163,7 +149,6 @@ http {
   brotli_types text/plain text/css text/xml application/json application/javascript application/xml+rss application/atom+xml image/svg+xml;
 
   include vhost/*.conf;
-  include waf.conf;
 }
 OOO
 
