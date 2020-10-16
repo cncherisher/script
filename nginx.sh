@@ -26,14 +26,15 @@ useradd -s /sbin/nologin -M www-data
 
 # 下载 openssl
 # 开启 https
-cd /usr/src
-wget https://github.com/openssl/openssl/archive/OpenSSL_1_1_1g.tar.gz 
-tar xzvf OpenSSL_1_1_1g.tar.gz
-mv openssl-OpenSSL_1_1_1g openssl
+cd /usr/src/
+openssl_v='1_1_1h'
+wget https://github.com/openssl/openssl/archive/OpenSSL_${openssl_v}.tar.gz 
+tar xzvf OpenSSL_${openssl_v}.tar.gz
+mv openssl-OpenSSL_${openssl_v} openssl
 
 # 下载 nginx
 cd /usr/src/
-nginx_v='1.19.2'
+nginx_v='1.19.3'
 wget https://nginx.org/download/nginx-${nginx_v}.tar.gz
 tar zxvf ./nginx-${nginx_v}.tar.gz 
 mv nginx-${nginx_v} nginx
@@ -53,8 +54,9 @@ git clone --recursive https://github.com/google/ngx_brotli.git
 # 下载 pcre
 # 用于正则
 cd /usr/src/
-wget https://ftp.pcre.org/pub/pcre/pcre-8.43.tar.gz
-tar zxf ./pcre-8.43.tar.gz
+pcre_v='8.44'
+wget https://ftp.pcre.org/pub/pcre/pcre-${pcre_v}.tar.gz
+tar zxf ./pcre-${pcre_v}.tar.gz
 
 # 下载 openssl-patch
 # 给 openssl 打补丁，用于开启更多 https 支持
@@ -79,6 +81,10 @@ make -j$(nproc) && make install
 echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
 ldconfig
 
+#下载pingos模块
+cd /usr/src/
+git clone https://github.com/pingostack/pingos.git
+
 # 关闭 nginx 的 debug 模式
 sed -i 's@CFLAGS="$CFLAGS -g"@#CFLAGS="$CFLAGS -g"@' /usr/src/nginx/auto/cc/gcc
 
@@ -93,11 +99,15 @@ cd /usr/src/nginx
 --with-http_realip_module \
 --with-http_flv_module --with-http_mp4_module \
 --with-openssl=../openssl --with-http_ssl_module \
---with-pcre=../pcre-8.43 --with-pcre-jit \
+--with-pcre=../pcre-${pcre_v} --with-pcre-jit \
 --with-zlib=../zlib --with-http_gzip_static_module \
---add-module=../ngx_brotli \
 --with-stream --with-stream_ssl_module --with-stream_ssl_preread_module \
---with-ld-opt=-ljemalloc --with-ipv6 
+--with-ld-opt=-ljemalloc --with-ipv6 \
+--add-module=../ngx_brotli \
+--add-module=../pingos/modules/nginx-rtmp-module \
+--add-module=../pingos/modules/nginx-client-module \
+--add-module=../pingos/modules/nginx-multiport-module \
+--add-module=../pingos/modules/nginx-toolkit-module
 
 make -j$(nproc) && make install
 
