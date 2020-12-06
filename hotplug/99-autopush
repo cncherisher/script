@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# Copyright (C) 2016 OpenWrt.org
+
+filetype=flac
+tmpfilepath=/tmp/"$filetype"file.txt
+
+console=`dmesg | grep -i "printk: console" | awk '{print $5}' |sed -e '2,5d' -e 's/\[//g' -e 's/\]//g'`
+ 
+[ "$ACTION" = add ] && [ "$DEVTYPE" = partition ] && [ "$DEVNAME" = partition ] {
+	echo USB Connected! Device:$DEVNAME DEVTYPE:$DEVTYPE> /dev/$console
+	cd /mnt/$DEVNAME
+
+	find . -name "*.$filetype" > $tmpfilepath
+	filecount=`find . -name "*.$filetype" |wc -l`
+	echo $filecount $filetype > /dev/$console
+  
+	cat $tmpfilepath > /dev/$console
+#	for((i=1;i<$filecount;i++))
+#	do
+	playfile=`sed -n '1p' $tmpfilepath`
+	(ffmpeg -re -i $playfile -acodec aac -f flv rtmp://localhost/live/test &)
+	pid=`pgrep ffmpeg`
+	echo now pushing $playfile pid=$pid > /dev/$console
+#	done
+}
+
+[ "$ACTION" = remove ] && [ "$DEVTYPE" = partition ] &&{
+	echo USB Removed! Device:$DEVNAME DEVTYPE:$DEVTYPE> /dev/$console
+	pid=`pgrep ffmpeg`
+	echo kill ffmpeg pid=$pid >/dev/$console
+	kill -9 $pid
+	rm -rf $tmpfilepath
+}
+
+

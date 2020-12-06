@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# 选择安装 WAF
 cat << EOF
 
 正在安装Nginx
@@ -34,7 +33,7 @@ mv openssl-OpenSSL_${openssl_v} openssl
 
 # 下载 nginx
 cd /usr/src/
-nginx_v='1.19.3'
+nginx_v='1.19.5'
 wget https://nginx.org/download/nginx-${nginx_v}.tar.gz
 tar zxvf ./nginx-${nginx_v}.tar.gz 
 mv nginx-${nginx_v} nginx
@@ -96,7 +95,10 @@ cd /usr/src/nginx
 --sbin-path=/usr/sbin/nginx \
 --with-compat --with-file-aio --with-threads \
 --with-http_v2_module --with-http_v2_hpack_enc \
---with-http_realip_module \
+--with-http_realip_module --with-http_auth_request_module\
+--with-http_stub_status_module\
+--with-http_dav_module \
+--with-http_secure_link_module --with-http_sub_module \
 --with-http_flv_module --with-http_mp4_module \
 --with-openssl=../openssl --with-http_ssl_module \
 --with-pcre=../pcre-${pcre_v} --with-pcre-jit \
