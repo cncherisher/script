@@ -95,8 +95,8 @@ cd /usr/src/nginx
 --sbin-path=/usr/sbin/nginx \
 --with-compat --with-file-aio --with-threads \
 --with-http_v2_module --with-http_v2_hpack_enc \
---with-http_realip_module --with-http_auth_request_module\
---with-http_stub_status_module\
+--with-http_realip_module --with-http_auth_request_module \
+--with-http_stub_status_module \
 --with-http_dav_module \
 --with-http_secure_link_module --with-http_sub_module \
 --with-http_flv_module --with-http_mp4_module \
