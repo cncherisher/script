@@ -104,7 +104,7 @@ cd /usr/src/nginx
 --with-pcre=../pcre-${pcre_v} --with-pcre-jit \
 --with-zlib=../zlib --with-http_gzip_static_module \
 --with-stream --with-stream_ssl_module --with-stream_ssl_preread_module \
---with-ld-opt=-ljemalloc --with-ipv6 \
+--with-ld-opt=-ljemalloc \
 --add-module=../ngx_brotli \
 --add-module=../pingos/modules/nginx-rtmp-module \
 --add-module=../pingos/modules/nginx-client-module \
