@@ -26,7 +26,7 @@ useradd -s /sbin/nologin -M www-data
 # 下载 openssl
 # 开启 https
 cd /usr/src/
-openssl_v='1_1_1h'
+openssl_v='1_1_1i'
 wget https://github.com/openssl/openssl/archive/OpenSSL_${openssl_v}.tar.gz 
 tar xzvf OpenSSL_${openssl_v}.tar.gz
 mv openssl-OpenSSL_${openssl_v} openssl
@@ -230,3 +230,9 @@ systemctl daemon-reload
 systemctl enable nginx
 systemctl stop nginx
 systemctl start nginx
+
+cat << EOF
+
+Nginx安装完成
+
+EOF
