@@ -180,7 +180,7 @@ cd /usr/src/nginx
 make -j$(nproc) && make install
 
 # 创建 nginx 全局配置
-cat > "/etc/nginx/conf/nginx.conf" << OOO
+cat > "/etc/nginx/conf/nginx.conf" << EOF
 user www-data www-data;
 pid /var/run/nginx.pid;
 worker_processes auto;
@@ -229,7 +229,7 @@ http {
 
   include vhost/*.conf;
 }
-OOO
+EOF
 
 # 创建 nginx 服务进程
 mkdir -p /usr/lib/systemd/system/ 
@@ -275,7 +275,8 @@ mkdir -p /wwwroot/
 cp -r /etc/nginx/html /wwwroot/default
 mkdir -p /etc/nginx/conf/vhost/
 mkdir -p /etc/nginx/conf/ssl/
-cat > "/etc/nginx/conf/vhost/default.conf" << EEE
+mkdir -p /var/cache/nginx
+cat > "/etc/nginx/conf/vhost/default.conf" << EOF
 server {
   listen 80;
   root /wwwroot/default;
@@ -283,7 +284,7 @@ server {
     index  index.html;
   }
 }
-EEE
+EOF
 
 # 配置站点目录权限
 chown -R www-data:www-data /wwwroot/
