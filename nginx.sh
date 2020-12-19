@@ -6,15 +6,23 @@ cat << EOF
 
 EOF
 
+# 设置安装版本
+openssl_v='1_1_1i'
+nginx_v='1.19.6'
+pcre_v='8.44'
+PageSpeed_v='1.14.33.1-RC1'
+jemalloc_v='5.2.1' 
+libmmdb_v='1.4.3'
+geoip2_v='3.3'
 
 # 安装依赖
 if [ -e "/usr/bin/yum" ]; then
   yum update -y
-  yum install git gcc make build-essential logrotate cron -y
+  yum install build-essential ca-certificates wget curl libpcre3 libpcre3-dev autoconf unzip automake libtool tar git libssl-dev zlib1g-dev uuid-dev lsb-release libxml2-dev libxslt1-dev cmake -y
 fi
 if [ -e "/usr/bin/apt-get" ]; then
   apt-get update -y
-  apt-get install git gcc make build-essential logrotate cron -y
+  apt-get install build-essential ca-certificates wget curl libpcre3 libpcre3-dev autoconf unzip automake libtool tar git libssl-dev zlib1g-dev uuid-dev lsb-release libxml2-dev libxslt1-dev cmake -y
 fi
 
 # 准备
@@ -26,16 +34,14 @@ useradd -s /sbin/nologin -M www-data
 # 下载 openssl
 # 开启 https
 cd /usr/src/
-openssl_v='1_1_1i'
 wget https://github.com/openssl/openssl/archive/OpenSSL_${openssl_v}.tar.gz 
-tar xzvf OpenSSL_${openssl_v}.tar.gz
+tar xzf OpenSSL_${openssl_v}.tar.gz
 mv openssl-OpenSSL_${openssl_v} openssl
 
 # 下载 nginx
 cd /usr/src/
-nginx_v='1.19.6'
 wget https://nginx.org/download/nginx-${nginx_v}.tar.gz
-tar zxvf ./nginx-${nginx_v}.tar.gz 
+tar zxf ./nginx-${nginx_v}.tar.gz 
 mv nginx-${nginx_v} nginx
 
 # 下载 zlib
@@ -53,7 +59,6 @@ git clone --recursive https://github.com/google/ngx_brotli.git
 # 下载 pcre
 # 用于正则
 cd /usr/src/
-pcre_v='8.44'
 wget https://ftp.pcre.org/pub/pcre/pcre-${pcre_v}.tar.gz
 tar zxf ./pcre-${pcre_v}.tar.gz
 
@@ -69,47 +74,108 @@ git clone https://github.com/kn007/patch.git nginx-patch
 cd /usr/src/nginx
 patch -p1 < ../nginx-patch/nginx.patch
 
+# 下载安装pingos模块
+# 流媒体支持
+cd /usr/src/
+git clone https://github.com/pingostack/pingos.git
+
+# GeoIP
+cd /usr/src/
+# install libmaxminddb
+wget https://github.com/maxmind/libmaxminddb/releases/download/${libmmdb_v}/libmaxminddb-${libmmdb_v}.tar.gz
+tar xaf libmaxminddb-${libmmdb_v}.tar.gz
+cd libmaxminddb-${libmmdb_v}/
+./configure
+make -j "$(nproc)"
+make install
+ldconfig
+
+cd ../ 
+wget https://github.com/leev/ngx_http_geoip2_module/archive/${geoip2_v}.tar.gz
+tar xaf ${geoip2_v}.tar.gz
+
+rm -rf /opt/geoip
+mkdir /opt/geoip
+cd /opt/geoip
+wget https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
+wget https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb
+
+# fancyindex
+cd /usr/src/
+git clone https://github.com/aperezdc/ngx-fancyindex.git
+mv ngx-fancyindex fancyindex
+
+# webdav
+git clone https://github.com/arut/nginx-dav-ext-module.git
+
 # 下载安装 jemalloc
 # 更好的内存管理
 cd /usr/src/
-wget https://github.com/jemalloc/jemalloc/releases/download/5.2.1/jemalloc-5.2.1.tar.bz2
-tar xjvf jemalloc-5.2.1.tar.bz2
-cd jemalloc-5.2.1
+wget https://github.com/jemalloc/jemalloc/releases/download/${jemalloc_v}/jemalloc-${jemalloc_v}.tar.bz2
+tar xjf jemalloc-${jemalloc_v}.tar.bz2
+cd jemalloc-${jemalloc_v}
 ./configure
 make -j$(nproc) && make install
 echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
 ldconfig
 
-#下载pingos模块
-cd /usr/src/
-git clone https://github.com/pingostack/pingos.git
-
 # 关闭 nginx 的 debug 模式
 sed -i 's@CFLAGS="$CFLAGS -g"@#CFLAGS="$CFLAGS -g"@' /usr/src/nginx/auto/cc/gcc
 
+#configure参数
+NGINX_OPTIONS="
+	--user=www-data \
+	--group=www-data \
+	--prefix=/etc/nginx \
+	--sbin-path=/usr/sbin/nginx \
+	--with-ld-opt=-ljemalloc \
+	--with-cc-opt=-Wno-deprecated-declarations \
+	--with-cc-opt=-Wno-ignored-qualifiers
+	--error-log-path=/var/log/nginx/error.log \
+	--http-log-path=/var/log/nginx/access.log \
+	--pid-path=/var/run/nginx.pid \
+	--lock-path=/var/run/nginx.lock \
+	--http-client-body-temp-path=/var/cache/nginx/client_temp \
+	--http-proxy-temp-path=/var/cache/nginx/proxy_temp \
+	--http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp"
+	
+NGINX_MODULES="
+	--with-compat \
+	--with-file-aio \
+	--with-threads \
+	--with-http_v2_module \
+	--with-http_v2_hpack_enc \
+	--with-http_realip_module \
+	--with-http_auth_request_module \
+	--with-http_stub_status_module \
+	--with-http_addition_module \
+	--with-http_dav_module \
+	--with-http_degradation_module \
+	--with-http_secure_link_module \
+	--with-http_sub_module \
+	--with-http_flv_module \
+	--with-http_mp4_module \
+	--with-openssl=../openssl \
+	--with-http_ssl_module \
+	--with-pcre=../pcre-${pcre_v} --with-pcre-jit \
+	--with-zlib=../zlib --with-http_gzip_static_module \
+	--with-stream \
+	--with-stream_ssl_module \
+	--with-stream_ssl_preread_module"
+
+NGINX_EXTRA_MODULES="
+	--add-module=../ngx_brotli \
+	--add-module=../pingos/modules/nginx-rtmp-module \
+	--add-module=../pingos/modules/nginx-client-module \
+	--add-module=../pingos/modules/nginx-multiport-module \
+	--add-module=../pingos/modules/nginx-toolkit-module \
+	--add-module=../ngx_http_geoip2_module-${geoip2_v}
+	--add-module=../fancyindex
+	--add-module=../nginx-dav-ext-module"
+
 # 编译安装 nginx
 cd /usr/src/nginx
-./configure \
---user=www-data --group=www-data \
---prefix=/etc/nginx \
---sbin-path=/usr/sbin/nginx \
---with-compat --with-file-aio --with-threads \
---with-http_v2_module --with-http_v2_hpack_enc \
---with-http_realip_module --with-http_auth_request_module \
---with-http_stub_status_module --with-http_addition_module \
---with-http_dav_module --with-http_degradation_module \
---with-http_secure_link_module --with-http_sub_module \
---with-http_flv_module --with-http_mp4_module \
---with-openssl=../openssl --with-http_ssl_module \
---with-pcre=../pcre-${pcre_v} --with-pcre-jit \
---with-zlib=../zlib --with-http_gzip_static_module \
---with-stream --with-stream_ssl_module --with-stream_ssl_preread_module \
---with-ld-opt=-ljemalloc \
---add-module=../ngx_brotli \
---add-module=../pingos/modules/nginx-rtmp-module \
---add-module=../pingos/modules/nginx-client-module \
---add-module=../pingos/modules/nginx-multiport-module \
---add-module=../pingos/modules/nginx-toolkit-module
+./configure $NGINX_OPTIONS $NGINX_MODULES $NGINX_EXTRA_MODULES
 
 make -j$(nproc) && make install
 
@@ -157,8 +223,9 @@ http {
   # Brotli
   brotli on;
   brotli_comp_level 6;
+  brotli_buffers 16 8k;
   brotli_static on;
-  brotli_types text/plain text/css text/xml application/json application/javascript application/xml+rss application/atom+xml image/svg+xml;
+  brotli_types *;
 
   include vhost/*.conf;
 }
@@ -230,6 +297,12 @@ systemctl daemon-reload
 systemctl enable nginx
 systemctl stop nginx
 systemctl start nginx
+
+#从apt源中屏蔽nginx
+if [[ $(lsb_release -si) == "Debian" ]] || [[ $(lsb_release -si) == "Ubuntu" ]]; then
+	cd /etc/apt/preferences.d/
+	echo -e 'Package: nginx*\nPin: release *\nPin-Priority: -1' >nginx-block
+fi
 
 cat << EOF
 
