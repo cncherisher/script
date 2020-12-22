@@ -10,10 +10,11 @@ EOF
 openssl_v='1_1_1i'
 nginx_v='1.19.6'
 pcre_v='8.44'
-PageSpeed_v='1.14.33.1-RC1'
-jemalloc_v='5.2.1' 
+PageSpeed_v='1.13.35.2'
 libmmdb_v='1.4.3'
 geoip2_v='3.3'
+headermod_v='0.33'
+jemalloc_v='5.2.1'
 
 # 安装依赖
 if [ -e "/usr/bin/yum" ]; then
@@ -106,7 +107,31 @@ git clone https://github.com/aperezdc/ngx-fancyindex.git
 mv ngx-fancyindex fancyindex
 
 # webdav
+cd /usr/src/
 git clone https://github.com/arut/nginx-dav-ext-module.git
+
+# cache purge模块
+cd /usr/src/
+git clone https://github.com/FRiCKLE/ngx_cache_purge.git
+
+# More Headers
+cd /usr/src/
+wget https://github.com/openresty/headers-more-nginx-module/archive/v${headermod_v}.tar.gz
+tar xaf v${headermod_v}.tar.gz
+
+# nginx vhost状态模块
+cd /usr/src/
+git clone https://github.com/vozlt/nginx-module-vts.git
+
+# pagespeed
+cd /usr/src/
+wget https://github.com/pagespeed/ngx_pagespeed/archive/v${PageSpeed_v}-stable.zip
+unzip v${PageSpeed_v}-stable.zip
+cd incubator-pagespeed-ngx-${PageSpeed_v}-stable || exit 1
+psol_url=https://dl.google.com/dl/page-speed/psol/${PageSpeed_v}.tar.gz
+[ -e scripts/format_binary_url.sh ] && psol_url=$(scripts/format_binary_url.sh PSOL_BINARY_URL)
+wget "${psol_url}"
+tar -xzf "$(basename "${psol_url}")"
 
 # 下载安装 jemalloc
 # 更好的内存管理
@@ -143,25 +168,31 @@ NGINX_MODULES="
 	--with-compat \
 	--with-file-aio \
 	--with-threads \
-	--with-http_v2_module \
-	--with-http_v2_hpack_enc \
-	--with-http_realip_module \
-	--with-http_auth_request_module \
-	--with-http_stub_status_module \
 	--with-http_addition_module \
+	--with-http_auth_request_module \
 	--with-http_dav_module \
 	--with-http_degradation_module \
-	--with-http_secure_link_module \
-	--with-http_sub_module \
 	--with-http_flv_module \
+	--with-http_gunzip_module \
+	--with-http_gzip_static_module \
 	--with-http_mp4_module \
-	--with-openssl=../openssl \
+	--with-http_random_index_module \
+	--with-http_realip_module \
+	--with-http_secure_link_module \
+	--with-http_slice_module \
 	--with-http_ssl_module \
-	--with-pcre=../pcre-${pcre_v} --with-pcre-jit \
-	--with-zlib=../zlib --with-http_gzip_static_module \
+	--with-http_stub_status_module \
+	--with-http_sub_module \
+	--with-http_v2_module \
+	--with-http_v2_hpack_enc \
+	--with-openssl=../openssl \
+	--with-pcre=../pcre-${pcre_v} \
+	--with-pcre-jit \
 	--with-stream \
+	--with-stream_realip_module \
 	--with-stream_ssl_module \
-	--with-stream_ssl_preread_module"
+	--with-stream_ssl_preread_module \
+	--with-zlib=../zlib --with-http_gzip_static_module"
 
 NGINX_EXTRA_MODULES="
 	--add-module=../ngx_brotli \
@@ -169,9 +200,13 @@ NGINX_EXTRA_MODULES="
 	--add-module=../pingos/modules/nginx-client-module \
 	--add-module=../pingos/modules/nginx-multiport-module \
 	--add-module=../pingos/modules/nginx-toolkit-module \
-	--add-module=../ngx_http_geoip2_module-${geoip2_v}
-	--add-module=../fancyindex
-	--add-module=../nginx-dav-ext-module"
+	--add-module=../ngx_http_geoip2_module-${geoip2_v} \
+	--add-module=../fancyindex \
+	--add-module=../nginx-dav-ext-module \
+	--add-module=../ngx_cache_purge \
+	--add-module=../headers-more-nginx-module-${headermod_v} \
+	--add-module=../nginx-module-vts \
+	--add-module=../incubator-pagespeed-ngx-${PageSpeed_v}-stable"
 
 # 编译安装 nginx
 cd /usr/src/nginx
