@@ -77,3 +77,6 @@ pip3 install -r requirements.txt
 pip3 install cryptography pycrypto pycryptodome uvloop
 nohup python3 -m bot > /dev/null 2>&1 &
 ```
+
+中国大陆git clone 加速
+将github.com 换为github.com.cnpmjs.org即可实现加速
