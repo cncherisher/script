@@ -47,11 +47,18 @@ Mainland China VPS GitHub Host
 ```shell
 sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master/nginx.sh)"
 ```
-一键命令安装 mtp
+一键命令安装 mtproxy
 
 ```shell
-sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master/mtp+nginx.sh)"
+wget https://www.zeroteam.top/files/mtproxy.sh && bash mtproxy.sh
+wget https://raw.githubusercontent.com/cncherisher/script/master/mtproxy.sh && bash mtproxy.sh
 ```
+测试vps是否解锁netflix
+
+```shell
+bash <(curl -sSL "https://www.zeroteam.top/files/netflix.sh")
+```
+
 一键命令安装 fail2ban
 
 ``` shell

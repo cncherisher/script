@@ -7,8 +7,8 @@ cat << EOF
 EOF
 
 # 设置安装版本
-openssl_v='1_1_1i'
-nginx_v='1.19.6'
+openssl_v='1_1_1j'
+nginx_v='1.19.7'
 pcre_v='8.44'
 PageSpeed_v='1.13.35.2'
 libmmdb_v='1.4.3'
