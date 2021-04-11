@@ -1,19 +1,17 @@
 #!/bin/bash
 
-cat << EOF
+[ $(id -u) != "0" ] && { echo "Error: You must be root to run this script"; exit 1; }
 
-正在安装Nginx
-
-EOF
+echo "正在安装Nginx"
 
 # 设置安装版本
-openssl_v='1_1_1j'
-nginx_v='1.19.7'
+openssl_v='1_1_1k'
+nginx_v='1.19.9'
 pcre_v='8.44'
 PageSpeed_v='1.13.35.2'
-libmmdb_v='1.4.3'
+libmmdb_v='1.5.2'
 geoip2_v='3.3'
-headermod_v='0.33'
+headermore_v='0.33'
 jemalloc_v='5.2.1'
 
 # 安装依赖
@@ -35,7 +33,7 @@ useradd -s /sbin/nologin -M www-data
 # 下载 openssl
 # 开启 https
 cd /usr/src/
-wget https://github.com/openssl/openssl/archive/OpenSSL_${openssl_v}.tar.gz 
+wget https://download.fastgit.org/openssl/openssl/archive/OpenSSL_${openssl_v}.tar.gz 
 tar xzf OpenSSL_${openssl_v}.tar.gz
 mv openssl-OpenSSL_${openssl_v} openssl
 
@@ -48,14 +46,14 @@ mv nginx-${nginx_v} nginx
 # 下载 zlib
 # 开启 gzip 压缩
 cd /usr/src/
-git clone https://github.com/cloudflare/zlib.git zlib
+git clone https://hub.fastgit.org/cloudflare/zlib.git zlib
 cd zlib
 make -f Makefile.in distclean
 
 # 下载 ngx_brotli
 # 开启 brotli 压缩
 cd /usr/src/
-git clone --recursive https://github.com/google/ngx_brotli.git
+git clone --recursive https://hub.fastgit.org/google/ngx_brotli.git
 
 # 下载 pcre
 # 用于正则
@@ -66,66 +64,64 @@ tar zxf ./pcre-${pcre_v}.tar.gz
 # 下载 openssl-patch
 # 给 openssl 打补丁，用于开启更多 https 支持
 cd /usr/src/
-git clone https://github.com/hakasenyang/openssl-patch.git
+git clone https://hub.fastgit.org/hakasenyang/openssl-patch.git
 cd /usr/src/openssl 
 patch -p1 < ../openssl-patch/openssl-equal-1.1.1e-dev_ciphers.patch
 
 cd /usr/src/
-git clone https://github.com/kn007/patch.git nginx-patch
+git clone https://hub.fastgit.org/kn007/patch.git nginx-patch
 cd /usr/src/nginx
 patch -p1 < ../nginx-patch/nginx.patch
-
-# 下载安装pingos模块
-# 流媒体支持
-cd /usr/src/
-git clone https://github.com/pingostack/pingos.git
 
 # GeoIP
 cd /usr/src/
 # install libmaxminddb
-wget https://github.com/maxmind/libmaxminddb/releases/download/${libmmdb_v}/libmaxminddb-${libmmdb_v}.tar.gz
-tar xaf libmaxminddb-${libmmdb_v}.tar.gz
-cd libmaxminddb-${libmmdb_v}/
-./configure
-make -j "$(nproc)"
-make install
-ldconfig
+if [ ! -e "/usr/local/lib/libmaxminddb.so" ]; then 
+	wget https://download.fastgit.org/maxmind/libmaxminddb/releases/download/${libmmdb_v}/libmaxminddb-${libmmdb_v}.tar.gz
+	tar xaf libmaxminddb-${libmmdb_v}.tar.gz
+	cd libmaxminddb-${libmmdb_v}/
+	./configure
+	make -j "$(nproc)"
+	make install
+	ldconfig
+	cd ../ 
+fi
 
-cd ../ 
-wget https://github.com/leev/ngx_http_geoip2_module/archive/${geoip2_v}.tar.gz
+wget https://download.fastgit.org/leev/ngx_http_geoip2_module/archive/${geoip2_v}.tar.gz
 tar xaf ${geoip2_v}.tar.gz
 
 rm -rf /opt/geoip
 mkdir /opt/geoip
 cd /opt/geoip
-wget https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
-wget https://github.com/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb
+wget https://download.fastgit.org/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-Country.mmdb
+wget https://download.fastgit.org/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-City.mmdb
+wget https://download.fastgit.org/P3TERX/GeoLite.mmdb/raw/download/GeoLite2-ASN.mmdb
 
 # fancyindex
 cd /usr/src/
-git clone https://github.com/aperezdc/ngx-fancyindex.git
+git clone https://hub.fastgit.org/aperezdc/ngx-fancyindex.git
 mv ngx-fancyindex fancyindex
 
 # webdav
 cd /usr/src/
-git clone https://github.com/arut/nginx-dav-ext-module.git
+git clone https://hub.fastgit.org/arut/nginx-dav-ext-module.git
 
 # cache purge模块
 cd /usr/src/
-git clone https://github.com/FRiCKLE/ngx_cache_purge.git
+git clone https://hub.fastgit.org/FRiCKLE/ngx_cache_purge.git
 
 # More Headers
 cd /usr/src/
-wget https://github.com/openresty/headers-more-nginx-module/archive/v${headermod_v}.tar.gz
-tar xaf v${headermod_v}.tar.gz
+wget https://download.fastgit.org/openresty/headers-more-nginx-module/archive/v${headermore_v}.tar.gz
+tar xaf v${headermore_v}.tar.gz
 
 # nginx vhost状态模块
 cd /usr/src/
-git clone https://github.com/vozlt/nginx-module-vts.git
+git clone https://hub.fastgit.org/vozlt/nginx-module-vts.git
 
 # pagespeed
 cd /usr/src/
-wget https://github.com/pagespeed/ngx_pagespeed/archive/v${PageSpeed_v}-stable.zip
+wget https://download.fastgit.org/pagespeed/ngx_pagespeed/archive/v${PageSpeed_v}-stable.zip
 unzip v${PageSpeed_v}-stable.zip
 cd incubator-pagespeed-ngx-${PageSpeed_v}-stable || exit 1
 psol_url=https://dl.google.com/dl/page-speed/psol/${PageSpeed_v}.tar.gz
@@ -135,14 +131,19 @@ tar -xzf "$(basename "${psol_url}")"
 
 # 下载安装 jemalloc
 # 更好的内存管理
-cd /usr/src/
-wget https://github.com/jemalloc/jemalloc/releases/download/${jemalloc_v}/jemalloc-${jemalloc_v}.tar.bz2
-tar xjf jemalloc-${jemalloc_v}.tar.bz2
-cd jemalloc-${jemalloc_v}
-./configure
-make -j$(nproc) && make install
-echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
-ldconfig
+if [ ! -e "/usr/local/lib/libjemalloc.so" ]; then 
+	cd /usr/src/
+	wget https://download.fastgit.org/jemalloc/jemalloc/releases/download/${jemalloc_v}/jemalloc-${jemalloc_v}.tar.bz2
+	tar xjf jemalloc-${jemalloc_v}.tar.bz2
+	cd jemalloc-${jemalloc_v}
+	./configure
+	make -j$(nproc) && make install
+	echo '/usr/local/lib' >> /etc/ld.so.conf.d/local.conf
+	ldconfig
+	if [ $? -ne 0 ];then  
+		echo "jemalloc install failed!" && exit 1 
+	fi
+fi
 
 # 关闭 nginx 的 debug 模式
 sed -i 's@CFLAGS="$CFLAGS -g"@#CFLAGS="$CFLAGS -g"@' /usr/src/nginx/auto/cc/gcc
@@ -196,15 +197,11 @@ NGINX_MODULES="
 
 NGINX_EXTRA_MODULES="
 	--add-module=../ngx_brotli \
-	--add-module=../pingos/modules/nginx-rtmp-module \
-	--add-module=../pingos/modules/nginx-client-module \
-	--add-module=../pingos/modules/nginx-multiport-module \
-	--add-module=../pingos/modules/nginx-toolkit-module \
-	--add-module=../ngx_http_geoip2_module-${geoip2_v} \
+	--add-module=../ngx_http_geoip2_module-${geoip2_v} --with-stream \
 	--add-module=../fancyindex \
 	--add-module=../nginx-dav-ext-module \
 	--add-module=../ngx_cache_purge \
-	--add-module=../headers-more-nginx-module-${headermod_v} \
+	--add-module=../headers-more-nginx-module-${headermore_v} \
 	--add-module=../nginx-module-vts \
 	--add-module=../incubator-pagespeed-ngx-${PageSpeed_v}-stable"
 
@@ -212,7 +209,15 @@ NGINX_EXTRA_MODULES="
 cd /usr/src/nginx
 ./configure $NGINX_OPTIONS $NGINX_MODULES $NGINX_EXTRA_MODULES
 
+if [ $? -ne 0 ];then  
+    echo "configure failed!" && exit 1 
+fi
+
 make -j$(nproc) && make install
+
+if [ $? -ne 0 ];then  
+    echo "compile failed!" && exit 1 
+fi
 
 # 创建 nginx 全局配置
 cat > "/etc/nginx/conf/nginx.conf" << EOF
@@ -222,47 +227,56 @@ worker_processes auto;
 worker_rlimit_nofile 65535;
 
 events {
-  use epoll;
-  multi_accept on;
-  worker_connections 65535;
+	use epoll;
+	multi_accept on;
+	worker_connections 65535;
 }
 
 http {
-  charset utf-8;
-  sendfile on;
-  aio threads;
-  directio 512k;
-  tcp_nopush on;
-  tcp_nodelay on;
-  server_tokens off;
-  log_not_found off;
-  types_hash_max_size 2048;
-  client_max_body_size 16M;
+	include koi-utf;
+	charset utf-8;
+	charset_types text/xml text/plain text/vnd.wap.wml
+				  application/javascript application/x-javascript
+				  application/rss+xml text/css;
+    override_charset on;
+	sendfile on;
+	aio threads;
+	directio 512k;
+	tcp_nopush on;
+	tcp_nodelay on;
+	server_tokens off;
+	log_not_found off;
+	types_hash_max_size 2048;
+	client_max_body_size 16M;
 
-  # MIME
-  include mime.types;
-  default_type application/octet-stream;
+	# MIME
+	include mime.types;
+	default_type application/octet-stream;
 
-  # Logging
-  access_log /var/log/nginx/access.log;
-  error_log /var/log/nginx/error.log warn;
+	# Logging
+	access_log /var/log/nginx/access.log;
+	error_log /var/log/nginx/error.log warn;
 
-  # Gzip
-  gzip on;
-  gzip_vary on;
-  gzip_proxied any;
-  gzip_comp_level 6;
-  gzip_types text/plain text/css text/xml application/json application/javascript application/xml+rss application/atom+xml image/svg+xml;
-  gzip_disable "MSIE [1-6]\.(?!.*SV1)";
+	# Gzip
+	gzip on;
+	gzip_vary on;
+	gzip_proxied any;
+	gzip_comp_level 9;
+	gzip_min_length 150;
+    gzip_static on;
+	gzip_types text/plain text/css text/xml application/json application/javascript application/xml+rss application/atom+xml image/svg+xml;
+	gzip_disable "MSIE [1-6]\.(?!.*SV1)";
 
-  # Brotli
-  brotli on;
-  brotli_comp_level 6;
-  brotli_buffers 16 8k;
-  brotli_static on;
-  brotli_types *;
+	# Brotli
+    brotli on;
+    brotli_static on;
+    brotli_min_length 150;
+    brotli_window 16m;
+    brotli_buffers 2048 4k;
+    brotli_comp_level 6;
+	brotli_types *;
 
-  include vhost/*.conf;
+	include vhost/*.conf;
 }
 EOF
 
@@ -270,8 +284,8 @@ EOF
 mkdir -p /usr/lib/systemd/system/ 
 cat > /usr/lib/systemd/system/nginx.service <<EOF
 [Unit]
-Description=nginx - high performance web server
-After=network.target
+Description=A high performance web server and a reverse proxy server
+After=syslog.target network.target network.service
 
 [Service]
 Type=forking
@@ -281,6 +295,7 @@ ExecStartPre=/usr/sbin/nginx -t -c /etc/nginx/conf/nginx.conf
 ExecStart=/usr/sbin/nginx -c /etc/nginx/conf/nginx.conf
 ExecReload=/usr/sbin/nginx -s reload
 ExecStop=/usr/sbin/nginx -s stop
+Restart=on-abort
 
 [Install]
 WantedBy=multi-user.target
@@ -340,8 +355,4 @@ if [[ $(lsb_release -si) == "Debian" ]] || [[ $(lsb_release -si) == "Ubuntu" ]];
 	echo -e 'Package: nginx*\nPin: release *\nPin-Priority: -1' >nginx-block
 fi
 
-cat << EOF
-
-Nginx安装完成
-
-EOF
+echo "Nginx安装完成"
