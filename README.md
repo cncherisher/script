@@ -5,8 +5,6 @@ Fix add-apt-repository not found
 apt-get install software-properties-common
 ```
 
-
-
 IPV6 ONLY VPS GitHub Host
 
 ```shell
@@ -45,39 +43,29 @@ Mainland China VPS GitHub Host
 一键命令编译安装 nginx
 
 ```shell
-sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master/nginx.sh)"
+sh -c "$(curl -kfsSl https://raw.fastgit.org/cncherisher/script/master/nginx.sh)"
 ```
 一键命令安装 mtproxy
 
 ```shell
 wget https://www.zeroteam.top/files/mtproxy.sh && bash mtproxy.sh
-wget https://raw.githubusercontent.com/cncherisher/script/master/mtproxy.sh && bash mtproxy.sh
+wget https://raw.fastgit.org/cncherisher/script/master/mtproxy.sh && bash mtproxy.sh
 ```
-测试vps是否解锁netflix
+测试vps是否解锁流媒体
 
 ```shell
-bash <(curl -sSL "https://www.zeroteam.top/files/netflix.sh")
+bash <(curl -sSL "https://raw.fastgit.org/CoiaPrant/MediaUnlock_Test/main/check.sh")
 ```
 
-一键命令安装 fail2ban
-
-``` shell
-wget https://raw.githubusercontent.com/cncherisher/script/master/fail2ban.sh && bash fail2ban.sh 2>&1 | tee fail2ban.log
-```
-一键命令安装oh-my-zsh
-
-``` shell
-sh -c "$(curl -kfsSl https://raw.githubusercontent.com/cncherisher/script/master/oh-my-zsh.sh)"
-```
 一键命令安装aria2
 
 ``` shell
-wget -N https://raw.githubusercontent.com/cncherisher/aria2.sh/master/aria2.sh && chmod +x aria2.sh && ./aria2.sh
+wget -N https://raw.fastgit.org/cncherisher/aria2.sh/master/aria2.sh && chmod +x aria2.sh && ./aria2.sh
 ```
 
 安装aria-mirror-bot
 ``` shell
-git clone -b staging-4.0 --single-branch https://github.com/lzzy12/python-aria-mirror-bot
+git clone -b staging-4.0 --single-branch https://hub.fastgit.org/lzzy12/python-aria-mirror-bot
 mv python-aria-mirror-bot mirror-bot && cd mirror-bot && cp config_sample.env config.env
 apt install -y python3 python3-pip p7zip-full p7zip-rar curl pv jq ffmpeg gcc git locales python3-lxml
 pip3 install -r requirements.txt
@@ -86,4 +74,4 @@ nohup python3 -m bot > /dev/null 2>&1 &
 ```
 
 中国大陆git clone 加速
-将github.com 换为github.com.cnpmjs.org即可实现加速
+将github.com 换为github.com.cnpmjs.org或者hub.fastgit.org即可实现加速
