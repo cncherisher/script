@@ -2,11 +2,11 @@
 
 [ $(id -u) != "0" ] && { echo "Error: You must be root to run this script"; exit 1; }
 
-echo "正在安装Nginx"
+echo "正在安装OpenSSL版Nginx"
 
 # 设置安装版本
 openssl_v='1_1_1k'
-nginx_v='1.19.9'
+nginx_v='1.19.10'
 pcre_v='8.44'
 PageSpeed_v='1.13.35.2'
 libmmdb_v='1.5.2'

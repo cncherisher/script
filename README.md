@@ -43,7 +43,8 @@ Mainland China VPS GitHub Host
 一键命令编译安装 nginx
 
 ```shell
-sh -c "$(curl -kfsSl https://raw.fastgit.org/cncherisher/script/master/nginx.sh)"
+sh -c "$(curl -kfsSl https://raw.fastgit.org/cncherisher/script/master/openssl-nginx.sh)"
+sh -c "$(curl -kfsSl https://raw.fastgit.org/cncherisher/script/master/boringssl-nginx.sh)"
 ```
 一键命令安装 mtproxy
 
