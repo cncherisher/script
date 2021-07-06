@@ -74,5 +74,9 @@ pip3 install cryptography pycrypto pycryptodome uvloop
 nohup python3 -m bot > /dev/null 2>&1 &
 ```
 
+ax6获取root权限
+```
+https://github.com/shell-script/unlock-redmi-ax3000
+```
 中国大陆git clone 加速
 将github.com 换为github.com.cnpmjs.org或者hub.fastgit.org即可实现加速
