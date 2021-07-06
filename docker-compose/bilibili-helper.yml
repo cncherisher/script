@@ -1,0 +1,16 @@
+version: "3"
+services:
+  bilibili-helper:
+    image: superng6/bilibili-helper:1.4.5
+    container_name: bilibili-helper
+    tty: true
+
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Asia/Shanghai
+      - TASK=1d
+      - CUSP=true
+    volumes:
+      - ./config:/config
+    restart: always

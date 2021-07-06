@@ -1,0 +1,9 @@
+subconverter:
+  image: stilleshan/subconverter
+  container_name: subconverter
+  restart: always
+  tty: true
+  hostname: subconverter
+  ports:
+    - 127.0.0.1:25500:25500
+

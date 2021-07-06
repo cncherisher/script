@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  freenom:
+    image: luolongfei/freenom
+    container_name: freenom
+    restart: always
+    volumes:
+      - ./conf:/conf
+      - ./logs:/app/logs
+    tty: true

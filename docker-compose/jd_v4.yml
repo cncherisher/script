@@ -1,0 +1,19 @@
+version: "2.0"
+services:
+  jd:
+    image: nevinee/jd:v4-bot     # 不使用bot则为nevinee/jd:v4
+    container_name: jd
+    restart: always
+    tty: true
+    network_mode: bridge
+    hostname: jd
+    volumes:
+      - ./config:/jd/config
+      - ./log:/jd/log
+      - ./own:/jd/own
+      #- ./bot-diy:/jd/jbot/diy  # v4-bot标签特有的，v4标签没有，如果你需要额外添加自己编写的BOT程序请解除注释
+    environment: 
+      - ENABLE_HANGUP=true  # 是否启用挂机
+      - ENABLE_TG_BOT=true  # 是否启用TG BOT，v4-bot标签特有的，v4标签没有
+    #security_opt:     #armv7设备请解除这两行注释，注意，这会降低容器的安全性，但不这样做你就无法正常使用容器，cli则为--security-opt seccomp=unconfined
+      #- seccomp=unconfined
